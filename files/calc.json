@@ -6,38 +6,38 @@
       "kind": "Binary",
       "lhs": {
         "kind": "Int",
-        "value": 3,
+        "value": 4,
         "location": {
           "start": 6,
           "end": 7,
           "filename": "files/calc.rinha"
         }
       },
-      "op": "Add",
+      "op": "Lte",
       "rhs": {
-        "kind": "Str",
-        "value": "1",
+        "kind": "Int",
+        "value": 3,
         "location": {
-          "start": 10,
-          "end": 13,
+          "start": 11,
+          "end": 12,
           "filename": "files/calc.rinha"
         }
       },
       "location": {
         "start": 6,
-        "end": 13,
+        "end": 12,
         "filename": "files/calc.rinha"
       }
     },
     "location": {
       "start": 0,
-      "end": 14,
+      "end": 13,
       "filename": "files/calc.rinha"
     }
   },
   "location": {
     "start": 0,
-    "end": 14,
+    "end": 13,
     "filename": "files/calc.rinha"
   }
 }
