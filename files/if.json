@@ -1,0 +1,51 @@
+{
+  "name": "files/if.rinha",
+  "expression": {
+    "kind": "Print",
+    "value": {
+      "kind": "If",
+      "condition": {
+        "kind": "Bool",
+        "value": true,
+        "location": {
+          "start": 10,
+          "end": 14,
+          "filename": "files/if.rinha"
+        }
+      },
+      "then": {
+        "kind": "Str",
+        "value": "verdadeiro",
+        "location": {
+          "start": 20,
+          "end": 32,
+          "filename": "files/if.rinha"
+        }
+      },
+      "otherwise": {
+        "kind": "Str",
+        "value": "falso",
+        "location": {
+          "start": 44,
+          "end": 51,
+          "filename": "files/if.rinha"
+        }
+      },
+      "location": {
+        "start": 6,
+        "end": 53,
+        "filename": "files/if.rinha"
+      }
+    },
+    "location": {
+      "start": 0,
+      "end": 54,
+      "filename": "files/if.rinha"
+    }
+  },
+  "location": {
+    "start": 0,
+    "end": 54,
+    "filename": "files/if.rinha"
+  }
+}
