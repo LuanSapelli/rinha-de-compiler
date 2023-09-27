@@ -1,1 +1,1 @@
-print(true)
+print(first((1, "test")))

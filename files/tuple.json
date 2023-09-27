@@ -1,15 +1,15 @@
 {
   "name": "files/tuple.rinha",
   "expression": {
-    "kind": "First",
+    "kind": "Second",
     "value": {
       "kind": "Tuple",
       "first": {
         "kind": "Str",
         "value": "1",
         "location": {
-          "start": 7,
-          "end": 10,
+          "start": 8,
+          "end": 11,
           "filename": "files/tuple.rinha"
         }
       },
@@ -17,26 +17,26 @@
         "kind": "Bool",
         "value": false,
         "location": {
-          "start": 12,
-          "end": 17,
+          "start": 13,
+          "end": 18,
           "filename": "files/tuple.rinha"
         }
       },
       "location": {
-        "start": 6,
-        "end": 18,
+        "start": 7,
+        "end": 19,
         "filename": "files/tuple.rinha"
       }
     },
     "location": {
       "start": 0,
-      "end": 19,
+      "end": 20,
       "filename": "files/tuple.rinha"
     }
   },
   "location": {
     "start": 0,
-    "end": 19,
+    "end": 20,
     "filename": "files/tuple.rinha"
   }
 }
