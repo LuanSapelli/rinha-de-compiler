@@ -13,49 +13,31 @@
           "filename": "files/calc.rinha"
         }
       },
-      "op": "Gt",
+      "op": "Div",
       "rhs": {
-        "kind": "Binary",
-        "lhs": {
-          "kind": "Int",
-          "value": 2,
-          "location": {
-            "start": 10,
-            "end": 11,
-            "filename": "files/calc.rinha"
-          }
-        },
-        "op": "Add",
-        "rhs": {
-          "kind": "Int",
-          "value": 1,
-          "location": {
-            "start": 14,
-            "end": 15,
-            "filename": "files/calc.rinha"
-          }
-        },
+        "kind": "Int",
+        "value": 0,
         "location": {
-          "start": 10,
-          "end": 15,
+          "start": 8,
+          "end": 9,
           "filename": "files/calc.rinha"
         }
       },
       "location": {
         "start": 6,
-        "end": 15,
+        "end": 9,
         "filename": "files/calc.rinha"
       }
     },
     "location": {
       "start": 0,
-      "end": 16,
+      "end": 10,
       "filename": "files/calc.rinha"
     }
   },
   "location": {
     "start": 0,
-    "end": 16,
+    "end": 10,
     "filename": "files/calc.rinha"
   }
 }

@@ -3,6 +3,9 @@
 use serde::Deserialize;
 use std::fmt::{Display, Error};
 use std::{fmt, fs};
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::rc::Rc;
 
 #[derive(Debug, Deserialize)]
 pub struct Program {
@@ -108,24 +111,34 @@ pub struct Binary {
     rhs: Term,
 }
 
-#[derive(Debug, Default, Clone, Deserialize)]
+#[derive(Debug, Default)]
 pub struct Scope {
-    parent: Box<Option<Scope>>,
-    current: Vec<(String, Val)>,
+    parent: Option<Rc<Scope>>,
+    current: Rc<RefCell<HashMap<String, Val>>>,
 }
 
 impl Scope {
-    pub fn set(&mut self, name: String, val: Val) {
-        self.current.push((name, val));
+    pub fn get(&self, var: &str) -> Option<Val> {
+        self.current
+            .borrow()
+            .get(var)
+            .cloned()
+            .or_else(|| self.parent.as_ref()?.get(var))
     }
 
-    pub fn get(&self, name: String) -> Option<Val> {
-        match self.current.iter().find(|(key, _)| key == &name) {
-            Some((_, val)) => Some(val.clone()),
-            None => match &*self.parent {
-                Some(parent) => parent.get(name),
-                None => None,
-            },
+    pub fn set(&self, var: impl Into<String>, val: Val) {
+        self.current.borrow_mut().insert(var.into(), val);
+    }
+}
+
+impl Clone for Scope {
+    fn clone(&self) -> Self {
+        Scope {
+            parent: Some(Rc::new(Scope {
+                parent: self.parent.clone(),
+                current: self.current.clone(),
+            })),
+            current: Default::default(),
         }
     }
 }
@@ -147,13 +160,7 @@ pub enum BinaryOperator {
     Or,
 }
 
-#[derive(Debug)]
-pub enum AddResult {
-    Int(i32),
-    String(String),
-}
-
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone)]
 pub enum Val {
     Str(String),
     Int(i32),
@@ -182,11 +189,11 @@ fn main() {
     let term: Term = program.expression;
     let scope = Scope::default();
 
-    let val = eval(term, scope);
+    let val = eval(term, &scope);
     println!("{:?}", val);
 }
 
-fn eval(term: Term, mut scope: Scope) -> Result<Val, Error> {
+fn eval(term: Term, scope: &Scope) -> Result<Val, Error> {
     match term {
         Term::Int(number) => Ok(Val::Int(number.value)),
         Term::Str(string) => Ok(Val::Str(string.value)),
@@ -197,7 +204,7 @@ fn eval(term: Term, mut scope: Scope) -> Result<Val, Error> {
             Ok(val)
         }
         Term::Binary(binary) => {
-            let lhs = eval(binary.lhs.clone(), scope.clone())?;
+            let lhs = eval(binary.lhs.clone(), scope)?;
             let rhs = eval(binary.rhs.clone(), scope)?;
 
             match binary.op {
@@ -218,6 +225,7 @@ fn eval(term: Term, mut scope: Scope) -> Result<Val, Error> {
                 BinaryOperator::Div => match (lhs, rhs) {
                     (Val::Int(lhs), Val::Int(rhs)) => {
                         if rhs == 0 {
+                            println!("error -> division by zero");
                             return Err(Error);
                         }
 
@@ -277,7 +285,7 @@ fn eval(term: Term, mut scope: Scope) -> Result<Val, Error> {
             }
         }
         Term::Tuple(tuple) => Ok(Val::Tuple((
-            Box::from(eval(tuple.first, scope.clone())?),
+            Box::from(eval(tuple.first, scope)?),
             Box::from(eval(tuple.second, scope)?),
         ))),
         Term::First(first) => match eval(first.value, scope)? {
@@ -288,37 +296,35 @@ fn eval(term: Term, mut scope: Scope) -> Result<Val, Error> {
             Val::Tuple((_, val)) => Ok(*val),
             _ => Err(Error),
         },
-        Term::If(if_term) => match eval(if_term.condition, scope.clone())? {
+        Term::If(if_term) => match eval(if_term.condition, scope)? {
             Val::Bool(true) => eval(if_term.then, scope),
             Val::Bool(false) => eval(if_term.otherwise, scope),
             _ => Err(Error),
         },
-        Term::Var(var) => match scope.get(var.text) {
+        Term::Var(var) => match scope.get(&var.text) {
             Some(val) => Ok(val),
-            None => {
-                //TODO -> fix
-                println!("caindo aqui");
-                Err(Error)
-            }
+            None => Err(Error),
         },
         Term::Let(lt) => {
-            scope.set(lt.name.text, eval(lt.value, scope.clone())?);
-            eval(lt.next, scope.clone())
+            let name = lt.name.text;
+            scope.set(name, eval(lt.value, scope)?);
+            eval(lt.next, scope)
         }
         Term::Function(func) => Ok(Val::Closure {
             func: *func,
-            env: scope,
+            env: scope.clone(),
         }),
-        Term::Call(call) => match eval(call.callee, scope.clone())? {
-            Val::Closure { func, mut env } => {
+        Term::Call(call) => match eval(call.callee, scope)? {
+            Val::Closure { func, env } => {
                 if call.arguments.len() != func.parameters.len() {
                     return Err(Error);
                 }
 
                 for (param, arg) in func.parameters.into_iter().zip(call.arguments) {
-                    env.set(param.text, eval(arg, scope.clone())?);
+                    env.set(param.text, eval(arg, scope)?);
                 }
-                eval(func.value, env)
+
+                eval(func.value, &env)
             }
             _ => Err(Error),
         },
